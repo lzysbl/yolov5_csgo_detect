@@ -1,0 +1,6 @@
+opencv-python==4.5.3
+torch==1.9.1
+numpy==1.21.2
+pyautogui==0.9.53
+pynput==1.7.4
+ultralytics==0.3.0

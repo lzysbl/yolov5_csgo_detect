@@ -1,0 +1,13 @@
+train: /home/yaogcc/桌面/py/yolov5/训练3_csgo/csgo.v9i.yolov5pytorch/train/images
+val: /home/yaogcc/桌面/py/yolov5/训练3_csgo/csgo.v9i.yolov5pytorch/valid/images
+test: /home/yaogcc/桌面/py/yolov5/训练3_csgo/csgo.v9i.yolov5pytorch/test/images
+
+nc: 1
+names: ['person']
+
+roboflow:
+  workspace: gcc-btuf4
+  project: csgo-jyx9f
+  version: 9
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/gcc-btuf4/csgo-jyx9f/dataset/9

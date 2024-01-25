@@ -1,0 +1,12 @@
+train: /home/yaogcc/桌面/py/yolov5/训练3_csgo/csgo2_322/test/images
+val: /home/yaogcc/桌面/py/yolov5/训练3_csgo/csgo2_322/valid/images
+test: /home/yaogcc/桌面/py/yolov5/训练3_csgo/csgo2_322/test/images
+nc: 1
+names: ['person2']
+
+roboflow:
+  workspace: gcc-btuf4
+  project: csgo2-gld7i
+  version: 1
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/gcc-btuf4/csgo2-gld7i/dataset/1
