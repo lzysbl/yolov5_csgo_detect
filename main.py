@@ -95,6 +95,7 @@ def run(
     dnn=False,  # 使用 OpenCV DNN 进行 ONNX 推理
     vid_stride=1,  # 视频帧率步长
 ): 
+    pyautogui.FAILSAFE = False
     global running
     is_move = 3
     source = str(source)  # 将源路径转换为字符串类型
@@ -209,23 +210,24 @@ def run(
                     n = (det[:, 5] == c).sum()  # 每个类别的检测数量
                     s += f"{n} {names[int(c)]}{'s' * (n > 1)}, "  # 添加到字符串中
                 #获取检测框的中心点坐标
+                
+                
                 if stop==False :
-                    x1, y1, x2, y2 = det[0, :4].int().cpu().detach().numpy()
+                    # 获取目标的边界框坐标
+                    x1, y1, x2, y2 = det[:4]
+                    # 计算目标的中心点坐标
                     x_center = (x1 + x2) / 2
-                    y_center = y1 + (y2-y1)*0.2
-                    print(f"y1:{y1} y2:{y2}")
-                    setx, sety = int(x_center), int(y_center)
-                    x, y = pyautogui.position()
-                    #len(det)>0则一定检测到目标
-                    print(f"鼠标指针的位置是：({x}, {y})")
-                    # 移动鼠标到 (setx,sety) 位置
-                    print(f"检测到目标，正在移动鼠标({setx},{sety})")
+                    y_center = (y1 + y2) / 2
+                    # 计算目标中心与鼠标位置的距离
+                    mouse_pos_x, mouse_pos_y = pyautogui.position()
+                    
+                    print(f"当前鼠标指针的位置是：({mouse_pos_x}, {mouse_pos_y})")
+                    print(f"检测到目标，目标位置：({x_center}, {y_center})")
+                    pyautogui.moveTo(x_center, y_center)
                     pyautogui.click()
                     print(f"点击鼠标左键")
-                
+                    
 
-
-                is_move+=1
 
                 # 写入结果
                 for *xyxy, conf, cls in reversed(det):
@@ -261,24 +263,24 @@ def run(
                 cv2.waitKey(1)  # 等待1毫秒
 
             # Save results (保存结果，包括带有检测的图像)
-            if False:
-                if save_img:  # 如果设置为保存图像
-                    if dataset.mode == "image":  # 如果处理的是单张图像
-                        cv2.imwrite(save_path, im0)  # 保存注释后的图像
-                    else:  # 如果处理的是 'video' 或 'stream'
-                        if vid_path[i] != save_path:  # 新的视频文件
-                            vid_path[i] = save_path
-                            if isinstance(vid_writer[i], cv2.VideoWriter):
-                                vid_writer[i].release()  # 释放之前的视频写入器资源
-                            if vid_cap:  # 处理视频文件
-                                fps = vid_cap.get(cv2.CAP_PROP_FPS)  # 获取视频的帧率
-                                w = int(vid_cap.get(cv2.CAP_PROP_FRAME_WIDTH))  # 获取视频帧的宽度
-                                h = int(vid_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))  # 获取视频帧的高度
-                            else:  # 处理流式输入
-                                fps, w, h = 30, im0.shape[1], im0.shape[0]  # 默认帧率、图像宽度和高度
-                            save_path = str(Path(save_path).with_suffix(".mp4"))  # 强制结果视频文件使用 *.mp4 后缀
-                            vid_writer[i] = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*"mp4v"), fps, (w, h))  # 创建视频写入器并打开文件
-                        vid_writer[i].write(im0)  # 将注释后的图像帧写入视频文件
+
+            if save_img:  # 如果设置为保存图像
+                if dataset.mode == "image":  # 如果处理的是单张图像
+                    cv2.imwrite(save_path, im0)  # 保存注释后的图像
+                else:  # 如果处理的是 'video' 或 'stream'
+                    if vid_path[i] != save_path:  # 新的视频文件
+                        vid_path[i] = save_path
+                        if isinstance(vid_writer[i], cv2.VideoWriter):
+                            vid_writer[i].release()  # 释放之前的视频写入器资源
+                        if vid_cap:  # 处理视频文件
+                            fps = vid_cap.get(cv2.CAP_PROP_FPS)  # 获取视频的帧率
+                            w = int(vid_cap.get(cv2.CAP_PROP_FRAME_WIDTH))  # 获取视频帧的宽度
+                            h = int(vid_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))  # 获取视频帧的高度
+                        else:  # 处理流式输入
+                            fps, w, h = 30, im0.shape[1], im0.shape[0]  # 默认帧率、图像宽度和高度
+                        save_path = str(Path(save_path).with_suffix(".mp4"))  # 强制结果视频文件使用 *.mp4 后缀
+                        vid_writer[i] = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*"mp4v"), fps, (w, h))  # 创建视频写入器并打开文件
+                    vid_writer[i].write(im0)  # 将注释后的图像帧写入视频文件
 
 
         # 打印推理时间（仅限推理部分）
